@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_nuevo"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/celeste"
+        app:title="@string/btNuevo"
+        app:titleTextColor="@color/white" />
+
+    <!-- Contenido del Layout -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:padding="16dp"
+        android:layout_marginTop="?attr/actionBarSize">
+
+        <!-- LinearLayout para organizar el contenido de manera vertical -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:id="@+id/llTituloTotal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <!-- Título de la pantalla -->
+                <TextView
+                    android:id="@+id/tvTitulo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/tituloCompra"
+                    android:textSize="24sp"
+                    android:textColor="@color/celeste"
+                    android:textStyle="bold" />
+
+                <!-- Total acumulado -->
+                <TextView
+                    android:id="@+id/tvTotal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textSize="18sp"
+                    android:textColor="@color/black" />
+            </LinearLayout>
+
+            <!-- Barra de búsqueda -->
+            <LinearLayout
+                android:id="@+id/llBusqueda"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- AutoCompleteTextView para buscar productos -->
+                <AutoCompleteTextView
+                    android:id="@+id/etBuscarProducto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Buscar Producto"
+                    android:importantForAccessibility="yes"
+                    android:completionThreshold="1" />
+
+                <!-- Campo para ingresar el nombre del producto -->
+                <EditText
+                    android:id="@+id/etNombreProducto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nombre del Producto"
+                    android:inputType="text" />
+
+                <!-- Campo para ingresar el precio del producto y spinner para seleccionar la cantidad -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <!-- Campo para ingresar el precio del producto -->
+                    <EditText
+                        android:id="@+id/etPrecioProducto"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="Precio del Producto"
+                        android:inputType="numberDecimal" />
+
+                    <!-- Spinner para seleccionar la cantidad -->
+                    <Spinner
+                        android:id="@+id/spinnerCantidad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:backgroundTint="@color/celeste"
+                        style="@style/Widget.AppCompat.Spinner.Underlined" />
+                </LinearLayout>
+
+                <!-- Botón para agregar el producto -->
+                <Button
+                    android:id="@+id/btnAgregarProducto"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btAgregar"
+                    android:backgroundTint="@color/dorado"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+
+            <!-- Lista de productos -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvProductos"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="16dp"
+                android:layout_weight="1"
+                android:background="@color/white"
+                android:padding="8dp" />
+
+            <!-- Botones al final -->
+            <LinearLayout
+                android:id="@+id/llBotones"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="16dp">
+
+                <Button
+                    android:id="@+id/btnCancelar"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="@string/btCancelar"
+                    android:backgroundTint="@color/rojo"
+                    android:textColor="@color/white"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/btnFinalizar"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_weight="1"
+                    android:text="@string/btFinalizar"
+                    android:backgroundTint="@color/dorado"
+                    android:textColor="@color/white" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

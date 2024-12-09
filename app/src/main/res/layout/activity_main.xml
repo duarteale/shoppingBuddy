@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@color/celeste"
+    android:padding="16dp">
+
+        <!-- Logo de la aplicación -->
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/logo2"
+        android:contentDescription="@string/logo"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="50dp" />
+
+        <!-- Botón: Nueva compra -->
+    <Button
+        android:id="@+id/btNuevo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btNuevo"
+        android:backgroundTint="@color/dorado"
+        android:textColor="@color/white"
+        android:layout_marginBottom="16dp" />
+
+        <!-- Botón: Historial de compras -->
+    <Button
+        android:id="@+id/btHistorial"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btHistorial"
+        android:backgroundTint="@color/dorado"
+        android:textColor="@color/white"
+        android:layout_marginBottom="16dp" />
+
+        <!-- Botón: Lista de productos guardados -->
+    <Button
+        android:id="@+id/btProductos"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btProductos"
+        android:backgroundTint="@color/dorado"
+        android:textColor="@color/white" />
+
+    </LinearLayout>

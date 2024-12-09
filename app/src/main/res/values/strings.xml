@@ -1,0 +1,26 @@
+<resources>
+    <!--Pantlla Principal -->
+    <string name="app_name">Shopping Buddy</string>
+    <string name="logo">Tu amigo de Compras</string>
+    <string name="btNuevo">Nueva Compra</string>
+    <string name="btHistorial">Historial de Compras</string>
+    <string name="btProductos">Productos</string>
+
+    <!--Nueva Compra -->
+    <string name="tituloCompra">COMPRA</string>
+    <string name="buscar_producto">Buscar producto</string>
+    <string name="btAgregar">Agregar producto</string>
+    <string name="indicador_precio">Indicador</string>
+    <string name="btCancelar">Cancelar</string>
+    <string name="btFinalizar">Finalizar</string>
+    <string name="cant">Cantidad:</string>
+    <string name="preu">Precio unitario:</string>
+
+    <!--Historial de Compras -->
+    <string name="tituloHistorial">HISTORIAL</string>
+    <string name="tvHistorial">Compras realizadas</string>
+    <!--Resumen Compra -->
+    <string name="tituloResumen">Resumen de Compra</string>
+    <string name="btVolver">Volver</string>
+
+</resources>
