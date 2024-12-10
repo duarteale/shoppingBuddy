@@ -189,10 +189,24 @@ public class SQLiteHelperDB extends SQLiteOpenHelper {
         db.insert(TABLE_PRODUCTOS, null, values);
         db.close();
     }
-
+    public int obtenerIdCompra(String nombreCompra) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String[] partes = nombreCompra.split(" - ");
+        String nombre = partes[0];
+        Cursor cursor = db.query("compras", new String[]{"id"}, "nombre = ?", new String[]{nombre}, null, null, null);
+        int idCompra = -1;
+        if (cursor.moveToFirst()) {
+            idCompra = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return idCompra;
+    }
 
     // Método para obtener los productos de una compra
     public List<Producto> obtenerProductosDeCompra(int compraId) {
+        Log.d("********", "Obteniendo productos de compra con ID " + compraId);
+
         List<Producto> productos = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.query(TABLE_PRODUCTOS, null, COLUMN_COMPRA_ID + "=?", new String[]{String.valueOf(compraId)}, null, null, null);
@@ -251,6 +265,7 @@ public class SQLiteHelperDB extends SQLiteOpenHelper {
     }
 
     public Compra obtenerCompra(int compraId) {
+        Log.d("********", "Obteniendo compra con ID " + compraId);
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_COMPRAS + " WHERE " + COLUMN_ID + " = ?";
         String[] args = new String[]{String.valueOf(compraId)};
