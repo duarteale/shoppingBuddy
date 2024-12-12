@@ -23,39 +23,54 @@ import androidx.appcompat.app.AlertDialog;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Nuevo extends AppCompatActivity {
+public class Presupuesto extends AppCompatActivity {
 
     private Toolbar toolbar;
+    private SQLiteHelperDB db;
     private RecyclerView rvProductos;
     private ArrayList<Producto> productosActuales = new ArrayList<>();
+    private ArrayList<Producto> productosTemporales = new ArrayList<>();
     private AdaptadorProducto adaptadorProducto;
     private Spinner spinnerCantidad;
     private AutoCompleteTextView etBuscarProducto;
-    private EditText etNombreProducto, etPrecioProducto;
+    private EditText etNombreProducto;
+    private EditText etPrecioProducto;
     private TextView tvTotal;
     private Button btnAgregarProducto;
     private Button btnCancelar;
     private Button btnFinalizar;
+    private TextView tvPresupuestoRestante;
+    private double presupuestoInicial;
+    private double totalActual;
     private List<String> historialCompras = new ArrayList<>();
     private List<Producto> listaProductos = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nuevo);
+        setContentView(R.layout.activity_presupuesto);
+
+        // Inicializar variables
+        Intent intent = getIntent();
+        presupuestoInicial = intent.getDoubleExtra("presupuesto", 0.0);
+        totalActual = 0.0;
 
         // Inicializar elementos de la UI
-        toolbar = findViewById(R.id.toolbar_nuevo);
+        toolbar = findViewById(R.id.toolbar_presupuesto);
         rvProductos = findViewById(R.id.rvProductos);
         spinnerCantidad = findViewById(R.id.spinnerCantidad);
         etBuscarProducto = findViewById(R.id.etBuscarProducto);
         etNombreProducto = findViewById(R.id.etNombreProducto);
         etPrecioProducto = findViewById(R.id.etPrecioProducto);
-        ((Spinner) findViewById(R.id.spinnerCantidad)).setSelection(0);
         btnAgregarProducto = findViewById(R.id.btnAgregarProducto);
         btnCancelar = findViewById(R.id.btnCancelar);
         btnFinalizar = findViewById(R.id.btnFinalizar);
         tvTotal = findViewById(R.id.tvTotal);
+        tvPresupuestoRestante = findViewById(R.id.tv_presupuesto_restante);
+        btnAgregarProducto = findViewById(R.id.btnAgregarProducto);
+
+        // Inicializar la base de datos
+        db = new SQLiteHelperDB(this);
 
         toolbar.setNavigationIcon(R.drawable.volver);
         setSupportActionBar(toolbar);
@@ -91,6 +106,17 @@ public class Nuevo extends AppCompatActivity {
             }
         });
     }
+    private void actualizarPresupuestoRestante() {
+        double presupuestoRestante = presupuestoInicial - totalActual;
+
+        if (presupuestoRestante >= 0) {
+            tvPresupuestoRestante.setTextColor(getResources().getColor(R.color.verde));
+        } else {
+            tvPresupuestoRestante.setTextColor(getResources().getColor(R.color.rojo));
+        }
+
+        tvPresupuestoRestante.setText(String.format("$%.2f", presupuestoRestante));
+    }
 
     private void cargarSpinnerCantidad() {
         List<String> cantidadOpciones = new ArrayList<>();
@@ -104,26 +130,26 @@ public class Nuevo extends AppCompatActivity {
     }
 
     private void mostrarDialogoGuardarCompra() {
-        final EditText input = new EditText(Nuevo.this);
+        final EditText input = new EditText(Presupuesto.this);
         input.setHint("Nombre de la compra");
 
-        new AlertDialog.Builder(Nuevo.this)
+        new AlertDialog.Builder(Presupuesto.this)
                 .setTitle("Guardar como:")
                 .setView(input)
                 .setPositiveButton("Guardar", (dialog, which) -> {
                     String nombreCompra = input.getText().toString().trim();
                     if (nombreCompra.isEmpty()) {
-                        Toast.makeText(Nuevo.this, "Debe ingresar un nombre para la compra", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Presupuesto.this, "Debe ingresar un nombre para la compra", Toast.LENGTH_SHORT).show();
                     } else if (historialCompras.contains(nombreCompra)) {
-                        Toast.makeText(Nuevo.this, "Ese nombre ya está en el historial", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Presupuesto.this, "Ese nombre ya está en el historial", Toast.LENGTH_SHORT).show();
                     } else {
                         guardarCompraEnHistorial(nombreCompra, productosTemporales);
                         historialCompras.add(nombreCompra);
                         productosTemporales.clear();
                         adaptadorProducto.notifyDataSetChanged();
-                        Toast.makeText(Nuevo.this, "Compra guardada como " + nombreCompra, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Presupuesto.this, "Compra guardada como " + nombreCompra, Toast.LENGTH_SHORT).show();
 
-                        Intent intent = new Intent(Nuevo.this, MainActivity.class);
+                        Intent intent = new Intent(Presupuesto.this, MainActivity.class);
                         startActivity(intent);
                         finish();
                     }
@@ -155,7 +181,6 @@ public class Nuevo extends AppCompatActivity {
             spinnerCantidad.setSelection(0); // Seleccionar la cantidad 1 por defecto
         }
     }
-    private ArrayList<Producto> productosTemporales = new ArrayList<>();
 
     private void agregarProducto() {
         String nombreProducto = etNombreProducto.getText().toString().trim();
@@ -170,7 +195,6 @@ public class Nuevo extends AppCompatActivity {
             int cantidadSeleccionada = Integer.parseInt(spinnerCantidad.getSelectedItem().toString());
             double precioProducto = Double.parseDouble(precioTexto);
 
-            SQLiteHelperDB db = new SQLiteHelperDB(this);
             Producto productoExistente = db.buscarProductoPorNombre(nombreProducto);
             Producto productoAgregar = null;
 
@@ -199,6 +223,13 @@ public class Nuevo extends AppCompatActivity {
 
             double total = calcularTotal(productosTemporales);
             tvTotal.setText("TOTAL: $" + String.format("%.2f", total));
+            double presupuestoRestante = presupuestoInicial - total;
+            tvPresupuestoRestante.setText("$" + String.format("%.2f", presupuestoRestante));
+            if (presupuestoRestante < 0) {
+                tvPresupuestoRestante.setTextColor(getResources().getColor(R.color.rojo));
+            } else {
+                tvPresupuestoRestante.setTextColor(getResources().getColor(R.color.verde));
+            }
 
             etNombreProducto.setText("");
             etPrecioProducto.setText("");

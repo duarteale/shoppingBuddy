@@ -9,24 +9,34 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:textColor="@color/black"
+        android:layout_marginLeft="5dp"
         android:textSize="16sp" />
 
     <TextView
         android:id="@+id/tv_precio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:layout_marginRight="5dp"
         android:textSize="16sp" />
 
     <Button
         android:id="@+id/btn_editar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/celeste"
+        android:textColor="@color/white"
+        android:layout_marginRight="5dp"
         android:text="Editar" />
 
     <Button
         android:id="@+id/btn_eliminar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/rojo"
+        android:textColor="@color/white"
+        android:layout_marginRight="5dp"
         android:text="Eliminar" />
 
 </LinearLayout>

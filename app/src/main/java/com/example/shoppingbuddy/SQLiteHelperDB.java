@@ -34,11 +34,11 @@ public class SQLiteHelperDB extends SQLiteOpenHelper {
     public static final String COLUMN_PRODUCTO_CANTIDAD = "producto_cantidad";
     public static final String COLUMN_COMPRA_ID = "compra_id";  // Relaciona productos con una compra
     public static final String COLUMN_ICONO_CAMBIO_PRECIO = "icono_cambio_precio";  // Nueva columna
+    public static final String TABLE_PRODUCTO = "producto";
 
     public SQLiteHelperDB(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
-
     @Override
     public void onCreate(SQLiteDatabase db) {
         // Crear tabla de compras
@@ -54,10 +54,18 @@ public class SQLiteHelperDB extends SQLiteOpenHelper {
                 + COLUMN_PRODUCTO_NOMBRE + " TEXT,"
                 + COLUMN_PRODUCTO_PRECIO + " REAL,"
                 + COLUMN_PRODUCTO_CANTIDAD + " INTEGER,"
-                + COLUMN_COMPRA_ID + " INTEGER,"
-                + COLUMN_ICONO_CAMBIO_PRECIO + " INTEGER,"  // Nueva columna
-                + "FOREIGN KEY(" + COLUMN_COMPRA_ID + ") REFERENCES " + TABLE_COMPRAS + "(" + COLUMN_ID + "))";
+                + COLUMN_ICONO_CAMBIO_PRECIO + " INTEGER"  // Nueva columna
+                + ")";
         db.execSQL(CREATE_TABLE_PRODUCTOS);
+
+        // Crear tabla de productos de una compra
+        String CREATE_TABLE_PRODUCTO = "CREATE TABLE " + TABLE_PRODUCTO + "("
+                + COLUMN_COMPRA_ID + " INTEGER,"
+                + COLUMN_PRODUCTO_NOMBRE + " TEXT,"
+                + COLUMN_PRODUCTO_PRECIO + " REAL,"
+                + COLUMN_PRODUCTO_CANTIDAD + " INTEGER,"
+                + "FOREIGN KEY(" + COLUMN_COMPRA_ID + ") REFERENCES " + TABLE_COMPRAS + "(" + COLUMN_ID + "))";
+        db.execSQL(CREATE_TABLE_PRODUCTO);
     }
     public void eliminarProducto(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -155,26 +163,69 @@ public class SQLiteHelperDB extends SQLiteOpenHelper {
 
     // Método para guardar una compra
     public long guardarCompra(String nombreCompra, ArrayList<Producto> productos) {
+
+        Log.d("SQLiteHelperDB", "guardarCompra: Iniciando...");
         SQLiteDatabase db = this.getWritableDatabase();
+        Log.d("SQLiteHelperDB", "guardarCompra: Base de datos abierta");
         ContentValues values = new ContentValues();
         values.put(COLUMN_NOMBRE, nombreCompra);
         values.put(COLUMN_FECHA, getCurrentDateTime());  // Guardar la fecha actual
+        Log.d("SQLiteHelperDB", "guardarCompra: Valores para la compra: " + values);
 
         long id = db.insert(TABLE_COMPRAS, null, values);
+        Log.d("SQLiteHelperDB", "guardarCompra: ID de la compra: " + id);
 
         // Guardar los productos de la compra
         for (Producto producto : productos) {
-            ContentValues productoValues = new ContentValues();
-            productoValues.put(COLUMN_PRODUCTO_NOMBRE, producto.getNombre());
-            productoValues.put(COLUMN_PRODUCTO_PRECIO, producto.getPrecioUnitario());
-            productoValues.put(COLUMN_PRODUCTO_CANTIDAD, producto.getCantidad());
-            productoValues.put(COLUMN_COMPRA_ID, id);  // Relacionar el producto con la compra
+            Log.d("SQLiteHelperDB", "guardarCompra: Producto: " + producto.getNombre());
+            // Verificar si el producto ya existe en la tabla de productos
+            if (productoExiste(db, producto.getNombre())) {
+                Log.d("SQLiteHelperDB", "guardarCompra: Producto existe, actualizando precio...");
+                actualizarProductoPrecio(db, producto.getNombre(), producto.getPrecioUnitario());
+            } else {
+                Log.d("SQLiteHelperDB", "guardarCompra: Producto no existe, creando nuevo...");
+                ContentValues productoValues = new ContentValues();
+                productoValues.put(COLUMN_PRODUCTO_NOMBRE, producto.getNombre());
+                productoValues.put(COLUMN_PRODUCTO_PRECIO, producto.getPrecioUnitario());
+                productoValues.put(COLUMN_PRODUCTO_CANTIDAD, 1); // Agregar cantidad 1
+                long productoId = db.insert(TABLE_PRODUCTOS, null, productoValues);
+                Log.d("SQLiteHelperDB", "guardarCompra: ID del producto: " + productoId);
+            }
 
-            db.insert(TABLE_PRODUCTOS, null, productoValues);
+            // Guardar el producto en la tabla de productos de la compra
+            ContentValues compraValues = new ContentValues();
+            compraValues.put(COLUMN_COMPRA_ID, id);
+            compraValues.put(COLUMN_PRODUCTO_NOMBRE, producto.getNombre());
+            compraValues.put(COLUMN_PRODUCTO_PRECIO, producto.getPrecioUnitario());
+            compraValues.put(COLUMN_PRODUCTO_CANTIDAD, 1); // Agregar cantidad 1
+            long compraProductoId = db.insert(TABLE_PRODUCTO, null, compraValues);
+            Log.d("SQLiteHelperDB", "guardarCompra: ID del producto en la compra: " + compraProductoId);
         }
 
         db.close();
+        Log.d("SQLiteHelperDB", "guardarCompra: Base de datos cerrada");
         return id;
+    }
+
+    // Método para verificar si un producto existe
+    public boolean productoExiste(SQLiteDatabase db, String nombre) {
+        Log.d("SQLiteHelperDB", "productoExiste: Verificando si el producto existe...");
+        String query = "SELECT * FROM " + TABLE_PRODUCTO + " WHERE " + COLUMN_PRODUCTO_NOMBRE + " = ?";
+        String[] args = new String[]{nombre};
+        Cursor cursor = db.rawQuery(query, args);
+        boolean existe = cursor.moveToFirst();
+        Log.d("SQLiteHelperDB", "productoExiste: ¿Existe el producto? " + existe);
+        cursor.close();
+        return existe;
+    }
+
+    // Método para actualizar el precio de un producto
+    public void actualizarProductoPrecio(SQLiteDatabase db, String nombre, double precio) {
+        Log.d("SQLiteHelperDB", "actualizarProductoPrecio: Actualizando el precio del producto...");
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_PRODUCTO_PRECIO, precio);
+        db.update(TABLE_PRODUCTOS, values, COLUMN_PRODUCTO_NOMBRE + " = ?", new String[]{nombre});
+        Log.d("SQLiteHelperDB", "actualizarProductoPrecio: Precio actualizado");
     }
 
     // Método para agregar un producto a una compra
@@ -209,21 +260,19 @@ public class SQLiteHelperDB extends SQLiteOpenHelper {
 
         List<Producto> productos = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_PRODUCTOS, null, COLUMN_COMPRA_ID + "=?", new String[]{String.valueOf(compraId)}, null, null, null);
+        Cursor cursor = db.query(TABLE_PRODUCTO, null, COLUMN_COMPRA_ID + "=?", new String[]{String.valueOf(compraId)}, null, null, null);
 
         if (cursor.moveToFirst()) {
             do {
-                int idColumnIndex = cursor.getColumnIndex(COLUMN_PRODUCTO_ID);
                 int nombreColumnIndex = cursor.getColumnIndex(COLUMN_PRODUCTO_NOMBRE);
                 int precioColumnIndex = cursor.getColumnIndex(COLUMN_PRODUCTO_PRECIO);
                 int cantidadColumnIndex = cursor.getColumnIndex(COLUMN_PRODUCTO_CANTIDAD);
 
-                if (idColumnIndex != -1 && nombreColumnIndex != -1 && precioColumnIndex != -1 && cantidadColumnIndex != -1) {
-                    int id = cursor.getInt(idColumnIndex);
+                if (nombreColumnIndex != -1 && precioColumnIndex != -1 && cantidadColumnIndex != -1) {
                     String nombreProducto = cursor.getString(nombreColumnIndex);
                     double precio = cursor.getDouble(precioColumnIndex);
                     int cantidad = cursor.getInt(cantidadColumnIndex);
-                    productos.add(new Producto(id, nombreProducto, cantidad, precio, 0));
+                    productos.add(new Producto(0, nombreProducto, cantidad, precio, 0));
                 } else {
                     Log.e("Error", "Columnas no encontradas en el cursor");
                 }
@@ -237,7 +286,7 @@ public class SQLiteHelperDB extends SQLiteOpenHelper {
     public double obtenerTotalDeCompra(int compraId) {
         double total = 0;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.query(TABLE_PRODUCTOS, new String[]{COLUMN_PRODUCTO_PRECIO, COLUMN_PRODUCTO_CANTIDAD}, COLUMN_COMPRA_ID + "=?", new String[]{String.valueOf(compraId)}, null, null, null);
+        Cursor cursor = db.query(TABLE_PRODUCTO, new String[]{COLUMN_PRODUCTO_PRECIO, COLUMN_PRODUCTO_CANTIDAD}, COLUMN_COMPRA_ID + "=?", new String[]{String.valueOf(compraId)}, null, null, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -257,7 +306,6 @@ public class SQLiteHelperDB extends SQLiteOpenHelper {
         db.close();
         return total;
     }
-
     // Método para obtener la fecha y hora actual
     private String getCurrentDateTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());

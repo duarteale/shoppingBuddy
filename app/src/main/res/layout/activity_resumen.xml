@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <!-- Toolbar -->
@@ -46,15 +47,19 @@
                 android:textSize="20sp"
                 android:textStyle="normal"
                 android:textColor="@color/celeste" />
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rvProductos"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"/>
 
             <Button
                 android:id="@+id/btnVolver"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/celeste"
+                android:textColor="@color/white"
                 android:text="Volver" />
 
         </LinearLayout>

@@ -7,7 +7,8 @@
     <string name="btProductos">Productos</string>
 
     <!--Nueva Compra -->
-    <string name="tituloCompra">COMPRA</string>
+    <string name="tituloCompra">Compra Libre</string>
+    <string name="tituloPresupuesto">Compra con Presupuesto</string>
     <string name="buscar_producto">Buscar producto</string>
     <string name="btAgregar">Agregar producto</string>
     <string name="indicador_precio">Indicador</string>
