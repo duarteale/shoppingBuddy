@@ -19,7 +19,7 @@ Shopping Buddy es una aplicación móvil desarrollada en Android que permite a l
 
 ## Estructura del Proyecto
 - La aplicación está dividida en varias actividades y fragmentos, cada uno correspondiente a una funcionalidad específica.
-- <img src="./app/src/main/res/drawable/estructura.PNG" alt="Estructura" width="180" height="600">
+- <img src="./app/src/main/res/drawable/estructura.PNG" alt="Estructura" width="180" height="550">
 
 ## Archivos Importantes
 - MainActivity.java: Actividad principal de la aplicación.
